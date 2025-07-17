@@ -1,46 +1,86 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import './TodoList.css';
-function TodoList() {
-    let [todos, setTodos] = useState([{task:"Sample Task", id: uuidv4()}]);
-    let [newTodo,setNewTotdo]=useState([""]);
 
-    let addNewTask = () => {
-       
-        setTodos([...todos,{task:newTodo, id: uuidv4()}]);
-        
+function TodoList() {
+    const [todos, setTodos] = useState([
+        { task: "Sample Task", id: uuidv4(), isCompleted: false }
+    ]);
+    const [newTodo, setNewTodo] = useState(""); // Fixed typo
+
+    const addNewTask = () => {
+        if (newTodo.trim() === "") return;
+        setTodos([...todos, { task: newTodo, id: uuidv4(), isCompleted: false }]);
+        setNewTodo(""); // Fixed typo
     };
 
-    let updateTodovalue=(event)=>{
-        setNewTotdo(event.target.value)
-    }
+    const updateTodovalue = (event) => {
+        setNewTodo(event.target.value); // Fixed typo
+    };
 
-    let deleteTodo=(id)=>{
-            setTodos((PrevTodos)=>todos.filter((PrevTodos)=>PrevTodos.id!=id));       
-    }
+    const deleteTodo = (id) => {
+        setTodos(todos.filter(todo => todo.id !== id));
+    };
+
+    const completeTask = (id) => {
+        setTodos(todos.map(todo =>
+            todo.id === id ? { ...todo, isCompleted: true } : todo
+        ));
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            addNewTask();
+        }
+    };
+
     return (
-        <>
-            <input
-                placeholder="Add a Task"
-                value={newTodo}
-                onChange={updateTodovalue}
-            />
-            <button onClick={addNewTask}>Add Task</button>
-            <br /><br />
-            <h4>Task To do</h4>
+        <div className="todo-container">
+            <div className="input-section">
+                <input
+                    type="text"
+                    placeholder="Add a new task..."
+                    value={newTodo}
+                    onChange={updateTodovalue}
+                    onKeyPress={handleKeyPress}
+                />
+                <button className="add-btn" onClick={addNewTask}>Add Task</button>
+            </div>
+
+            <h4 className="todo-title">Tasks To Do</h4>
             <ul>
-                {todos.map((todo) => (
-                    <li key={todo.id}>{todo.task} 
+                {todos.filter(todo => !todo.isCompleted).map((todo) => (
+                    <li key={todo.id}>
+                        {todo.task}
                         <span>
-                            <button onClick={()=>deleteTodo(todo.id)}>Delete</button>
+                            <button className="complete-btn" onClick={() => completeTask(todo.id)}>
+                                Complete
+                            </button>
+                            <button className="delete-btn" onClick={() => deleteTodo(todo.id)}>
+                                Delete
+                            </button>
                         </span>
-                    
                     </li>
                 ))}
             </ul>
-        </>
+
+            <hr />
+            
+            <h4 className="completed-title">Completed Tasks</h4>
+            <ul className="completed-tasks">
+                {todos.filter(todo => todo.isCompleted).map((todo) => (
+                    <li key={todo.id}>
+                        <span className="completed-task-text">{todo.task}</span>
+                        <span>
+                            <button className="delete-btn" onClick={() => deleteTodo(todo.id)}>
+                                Delete
+                            </button>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 }
 
 export default TodoList;
- 
